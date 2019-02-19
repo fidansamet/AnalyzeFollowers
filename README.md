@@ -1,4 +1,4 @@
-# analyze_followers
+# Analyze Followers
 
 A new Flutter application.
 
