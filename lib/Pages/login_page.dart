@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
-  static String TAG = 'login-page';
-  
+
+  final String choice;
+  LoginPage(this.choice);
+
   @override
   _LoginPageState createState() => new _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   @override
   Widget build(BuildContext context) {
-    final logo = Hero (
-      tag: 'hero',
-      child: CircleAvatar(
-        backgroundColor: Colors.transparent,
-      radius: 48.0,
-      ),
-    );
+
+    String choice = widget.choice;
+
+    final logo = Image.asset(choice == "Twitter" ? 'assets/twitter.png' : 'assets/instagram.png', width: 200.0, height: 200.0);
 
     final email = TextFormField(
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
       decoration: InputDecoration(
-        hintText: 'Username',
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(32.0)
-        )
+          hintText: 'Username',
+          contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0)
+          )
       ),
     );
 
@@ -47,8 +47,8 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: Material(
         borderRadius: BorderRadius.circular(30.0),
-        shadowColor: Colors.lightBlueAccent.shade100,
-        color: Colors.lightBlueAccent,
+        shadowColor: choice == "Twitter" ? Colors.blue.shade100 : Colors.pink.shade100,
+        color: choice == "Twitter" ? Colors.lightBlue : Colors.pink,
         elevation: 3.0,
         child: MaterialButton(
           minWidth: 200.0,
@@ -87,4 +87,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
