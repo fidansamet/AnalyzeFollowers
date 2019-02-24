@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'list_page.dart';
 
 class LoginPage extends StatefulWidget {
 
@@ -53,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
         child: MaterialButton(
           minWidth: 200.0,
           height: 42.0,
-          onPressed: () {},
+          onPressed: () => Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ListPage())),
           child: Text('Log In', style: TextStyle(color: Colors.white)),
         ),
       ),
