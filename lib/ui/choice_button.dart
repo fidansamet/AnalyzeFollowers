@@ -10,14 +10,15 @@ class ChoiceButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Expanded(
       child: new Material(
-        color: _choice == "Twitter" ? Colors.blue : Colors.pink,
+        color: _choice == "Twitter" ? Theme.of(context).primaryColor
+            : Theme.of(context).accentColor,
         child: new InkWell(
           onTap: () => _onTap(),
           child: new Center(
             child: Container(
               padding: new EdgeInsets.all(20.0),
               child: new Text(_choice == "Twitter" ? "Twitter" : "Instagram",
-              style: new TextStyle(color: Colors.white, fontSize: 40.0, fontWeight: FontWeight.bold, fontStyle: FontStyle.normal),),
+              style: Theme.of(context).primaryTextTheme.title.copyWith(fontSize: 40.0)),
             ),
           ),
         ),

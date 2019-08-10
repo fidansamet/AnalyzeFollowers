@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:analyze_followers/UI/choice_button.dart';
-import 'login_page.dart';
+import 'package:analyze_followers/ui/choice_button.dart';
+import 'package:analyze_followers/ui/login_page.dart';
 
 class ChoicePage extends StatefulWidget {
 
