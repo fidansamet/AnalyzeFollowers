@@ -1,8 +1,10 @@
+import 'package:analyze_followers/blocs/login/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
-
   final String choice;
+
   LoginPage(this.choice);
 
   @override
@@ -10,14 +12,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
-  bool warning =  false;
+  final loginBloc = LoginBloc();
+  bool _warning = false;
+  bool loginScreenOn = true;
+  String _warningMessage = "";
   bool obscureText = false;
   final usernameController = TextEditingController();
   final passController = TextEditingController();
   FocusNode usernameFocusNode;
   FocusNode passFocusNode;
-
 
   @override
   void initState() {
@@ -41,14 +44,23 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  Widget warningWidget(String choice) {
+    return Text(
+      _warningMessage,
+      style: Theme.of(context).primaryTextTheme.title.copyWith(
+          fontSize: 13,
+          color: choice == "Twitter"
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).accentColor),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
     String choice = widget.choice;
 
     final logo = Image.asset(
-        choice == "Twitter" ? 'assets/twitter.png'
-            : 'assets/instagram.png',
+        choice == "Twitter" ? 'assets/twitter.png' : 'assets/instagram.png',
         width: 150.0,
         height: 150.0);
 
@@ -57,25 +69,31 @@ class _LoginPageState extends State<LoginPage> {
       focusNode: usernameFocusNode,
       autofocus: false,
       cursorColor: Theme.of(context).cursorColor,
-      style: Theme.of(context).primaryTextTheme.subhead.copyWith(fontSize: 18.0),
+      style:
+          Theme.of(context).primaryTextTheme.subhead.copyWith(fontSize: 18.0),
       decoration: InputDecoration(
         hintText: 'Username',
-        hintStyle: Theme.of(context).primaryTextTheme.subtitle.copyWith(fontSize: 18.0),
+        hintStyle: Theme.of(context)
+            .primaryTextTheme
+            .subtitle
+            .copyWith(fontSize: 18.0),
         contentPadding: EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 12.0),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: warning ? choice == "Twitter"
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).accentColor
+              color: _warning
+                  ? choice == "Twitter"
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).accentColor
                   : Theme.of(context).dividerColor,
               width: 1.0),
           borderRadius: BorderRadius.circular(32.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: warning ? choice == "Twitter"
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).accentColor
+              color: _warning
+                  ? choice == "Twitter"
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).accentColor
                   : Theme.of(context).dividerColor,
               width: 1.0),
           borderRadius: BorderRadius.circular(32.0),
@@ -89,33 +107,37 @@ class _LoginPageState extends State<LoginPage> {
       autofocus: false,
       obscureText: obscureText,
       cursorColor: Theme.of(context).cursorColor,
-      style: Theme.of(context).primaryTextTheme.subhead.copyWith(fontSize: 18.0),
+      style:
+          Theme.of(context).primaryTextTheme.subhead.copyWith(fontSize: 18.0),
       decoration: InputDecoration(
-          hintText: 'Password',
-          hintStyle: Theme.of(context).primaryTextTheme.subtitle.copyWith(fontSize: 18.0),
-          contentPadding: EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 12.0),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: warning ? choice == "Twitter"
-                    ? Theme.of(context).primaryColor
-                    : Theme.of(context).accentColor
-                    : Theme.of(context).dividerColor,
-                width: 1.0),
-            borderRadius: BorderRadius.circular(32.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: warning ? choice == "Twitter"
-                    ? Theme.of(context).primaryColor
-                    : Theme.of(context).accentColor
-                    : Theme.of(context).dividerColor,
-                  width: 1.0),
-            borderRadius: BorderRadius.circular(32.0),
-          ),
+        hintText: 'Password',
+        hintStyle: Theme.of(context)
+            .primaryTextTheme
+            .subtitle
+            .copyWith(fontSize: 18.0),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 12.0),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+              color: _warning
+                  ? choice == "Twitter"
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).accentColor
+                  : Theme.of(context).dividerColor,
+              width: 1.0),
+          borderRadius: BorderRadius.circular(32.0),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+              color: _warning
+                  ? choice == "Twitter"
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).accentColor
+                  : Theme.of(context).dividerColor,
+              width: 1.0),
+          borderRadius: BorderRadius.circular(32.0),
+        ),
         suffixIcon: IconButton(
-          padding: new EdgeInsets.symmetric(
-              vertical: 0.0,
-              horizontal: 0.0),
+          padding: new EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
           onPressed: _togglePassShow,
           icon: Icon(
             obscureText ? Icons.visibility_off : Icons.visibility,
@@ -126,6 +148,36 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
 
+    final warning = BlocListener(
+      bloc: loginBloc,
+      child: BlocBuilder(
+        bloc: loginBloc,
+        builder: (BuildContext context, LoginState state) {
+          if (state is LoginInitial) {
+            return warningWidget(choice);
+          } else if (state is LoginLoading) {
+            return warningWidget(choice);
+          } else if (state is LoginSuccessful) {
+            return warningWidget(choice);
+          } else if (state is LoginFailure) {
+            _warningMessage = state.error;
+            return warningWidget(choice);
+          }
+        },
+      ),
+      listener: (BuildContext context, LoginState state) {
+        if (state is LoginSuccessful) {
+          loginScreenOn = true;
+        } else if (state is LoginFailure) {
+          loginScreenOn = true;
+          _warning = true;
+        } else if (state is LoginLoading) {
+          _warning = true;
+          loginScreenOn = false;
+        }
+      },
+    );
+
     final loginButton = Container(
         height: 100.0,
         width: 100.0,
@@ -133,24 +185,29 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: choice == "Twitter"
               ? Theme.of(context).primaryColor
               : Theme.of(context).accentColor,
-          child: Text(
-              'Login',
-              style: Theme.of(context).primaryTextTheme.title.copyWith(fontSize: 20.0)
-          ),
+          child: Text('Login',
+              style: Theme.of(context)
+                  .primaryTextTheme
+                  .title
+                  .copyWith(fontSize: 20.0)),
           elevation: 0.0,
-          onPressed: ()=> Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new LoginPage(choice))),
+          onPressed: _warning
+              ? null
+              : () => Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new LoginPage(choice))),
           heroTag: null,
-        )
-    );
+        ));
 
     final forgotLabel = FlatButton(
-      child: Text('Forgot Password?',
-        style: TextStyle(color: Theme.of(context).dividerColor).copyWith(fontSize: 15.0),
+      child: Text(
+        'Forgot Password?',
+        style: TextStyle(color: Theme.of(context).dividerColor)
+            .copyWith(fontSize: 15.0),
       ),
       onPressed: () {},
     );
 
-    return Scaffold(
+    final loginScreen = Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       body: GestureDetector(
         onTap: () {
@@ -160,14 +217,16 @@ class _LoginPageState extends State<LoginPage> {
           padding: EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 12.0),
           color: Theme.of(context).cardColor,
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               logo,
               SizedBox(height: 50.0),
               username,
               SizedBox(height: 10.0),
               password,
+              SizedBox(height: 30.0),
+              warning,
               SizedBox(height: 30.0),
               loginButton,
               forgotLabel,
@@ -176,5 +235,21 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+
+    final opaqueScreen = Stack(
+      children: [
+        Opacity(opacity: 0.3, child: loginScreen),
+        new Center(
+          child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+            choice == "Twitter"
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).accentColor,
+          )),
+        ),
+      ],
+    );
+
+    return loginScreenOn ? loginScreen : opaqueScreen;
   }
 }
