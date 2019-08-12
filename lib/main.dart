@@ -1,3 +1,4 @@
+import 'package:analyze_followers/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:analyze_followers/ui/choice_page.dart';
 
@@ -18,7 +19,6 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-
   @override
   Widget build(BuildContext context) {
     final opaqueRegPage = Stack(
@@ -27,19 +27,19 @@ class _MainState extends State<Main> {
         new Center(
           child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).primaryColor,
-              )),
+            Theme.of(context).primaryColor,
+          )),
         ),
       ],
     );
 
     return MaterialApp(
-
       home: FutureBuilder(
           future: session(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.data) {
+                print("session*");
                 return ChoicePage();
               } else {
                 return ChoicePage();
@@ -48,13 +48,11 @@ class _MainState extends State<Main> {
               return Center(
                 child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).cardColor,
-                    )
-                ),
+                  Theme.of(context).cardColor,
+                )),
               );
             }
           }),
-
       theme: ThemeData(
         primaryColor: Colors.blue,
         accentColor: Colors.pink,
@@ -63,28 +61,31 @@ class _MainState extends State<Main> {
         dividerColor: Colors.black54,
         cursorColor: Colors.black12,
         primaryTextTheme: TextTheme(
-            title: TextStyle(
-                color: Colors.white,
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.bold
-            ),
-            subtitle: TextStyle(
-                color: Colors.black54,
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal
-            ),
-            subhead: TextStyle(
-                color: Colors.black87,
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal
-            ),
+          title: TextStyle(
+              color: Colors.white,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.bold),
+          subtitle: TextStyle(
+              color: Colors.black54,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.normal),
+          subhead: TextStyle(
+              color: Colors.black87,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.normal),
         ),
       ),
     );
   }
 
-  Future<bool> session () async {
-    // will be initialize
-    return false;
+  Future<bool> session() async {
+    Utils utils = new Utils();
+    String userInfos = await utils.readUserInfos();
+
+    if (userInfos != "") {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
