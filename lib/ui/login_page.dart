@@ -1,4 +1,6 @@
+import 'package:analyze_followers/blocs/insta_login/insta_bloc.dart';
 import 'package:analyze_followers/blocs/twitter_login/twitter_bloc.dart';
+import 'package:analyze_followers/secrets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_twitter_login/flutter_twitter_login.dart';
@@ -14,12 +16,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final loginBloc = TwitterLoginBloc();
+  final instaLoginBloc = InstaLoginBloc();
+  final twitterLoginBloc = TwitterLoginBloc();
   bool loginScreenOn = true;
   bool obscureText = false;
   var twitterLogin = new TwitterLogin(
-    consumerKey: 'B6RvdkjnX3mrS6uQ4TkHud3vp',
-    consumerSecret: '3o1Hs7s984gVHpk06Vd7CVWwqLs6jrJXo7iEbkkun172PZAKl4',
+    consumerKey: Secrets().twitterConsumerKey,
+    consumerSecret: Secrets().twitterConsumerSecret,
   );
 
   @override
@@ -39,10 +42,7 @@ class _LoginPageState extends State<LoginPage> {
           FocusScope.of(context).detach();
         },
         child: Center(
-          child: Container(
-            color: Theme.of(context).cardColor,
-            child: logo
-          ),
+          child: Container(color: Theme.of(context).cardColor, child: logo),
         ),
       ),
     );
@@ -61,39 +61,60 @@ class _LoginPageState extends State<LoginPage> {
       ],
     );
 
-    final twitterBlocBuilder = BlocBuilder(
-        bloc: loginBloc,
-        builder: (BuildContext context, TwitterLoginState state) {
-
-          if (state is TwitterLoginInitial) {
-            loginBloc.dispatch(TwitterLoginEvent(twitterLogin));
+    final instaBlocBuilder = BlocBuilder(
+        bloc: instaLoginBloc,
+        builder: (BuildContext context, InstaLoginState state) {
+          if (state is InstaLoginInitial) {
+            instaLoginBloc.dispatch(InstaLoginEvent());
             return loginScreen;
-
-          } else if (state is TwitterLoginLoading) {
+          } else if (state is InstaLoginLoading) {
             return opaqueScreen;
-
-          } else if (state is TwitterLoginFailure){
-            _scaffoldKey.currentState.showSnackBar(
-                SnackBar(
-                  content: Text('Could not connect to Twitter!'),
-                  duration: Duration(seconds: 5),
-                  action: SnackBarAction(
-                    textColor: Theme.of(context).primaryColor,
-                    label: 'Retry',
-                    onPressed: () {
-                      loginBloc.dispatch(TwitterReturnInitialState());
-                    },
-                  ),
-                ));
+          } else if (state is InstaLoginFailure) {
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text('Could not connect to Instagram!'),
+              duration: Duration(seconds: 5),
+              action: SnackBarAction(
+                textColor: Theme.of(context).accentColor,
+                label: 'Retry',
+                onPressed: () {
+                  instaLoginBloc.dispatch(InstaReturnInitialState());
+                },
+              ),
+            ));
             return loginScreen;
-
-          } else {      // successful
+          } else {
+            // successful
             return loginScreen;
           }
-        }
-    );
+        });
 
-    return twitterBlocBuilder;
+    final twitterBlocBuilder = BlocBuilder(
+        bloc: twitterLoginBloc,
+        builder: (BuildContext context, TwitterLoginState state) {
+          if (state is TwitterLoginInitial) {
+            twitterLoginBloc.dispatch(TwitterLoginEvent(twitterLogin));
+            return loginScreen;
+          } else if (state is TwitterLoginLoading) {
+            return opaqueScreen;
+          } else if (state is TwitterLoginFailure) {
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text('Could not connect to Twitter!'),
+              duration: Duration(seconds: 5),
+              action: SnackBarAction(
+                textColor: Theme.of(context).primaryColor,
+                label: 'Retry',
+                onPressed: () {
+                  twitterLoginBloc.dispatch(TwitterReturnInitialState());
+                },
+              ),
+            ));
+            return loginScreen;
+          } else {
+            // successful
+            return loginScreen;
+          }
+        });
 
+    return choice == "Twitter" ? twitterBlocBuilder : instaBlocBuilder;
   }
 }

@@ -16,6 +16,7 @@
 *.iws
 .idea/
 pubspec.lock
+lib/secrets.dart
 
 # Visual Studio Code related
 .vscode/
