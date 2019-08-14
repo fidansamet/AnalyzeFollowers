@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 
 class Utils {
   static final Utils _utils = new Utils._internal();
+  String choice;
 
   factory Utils() {
     return _utils;

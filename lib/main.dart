@@ -1,3 +1,4 @@
+import 'package:analyze_followers/ui/twitter_profile_summary.dart';
 import 'package:analyze_followers/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:analyze_followers/ui/choice_page.dart';
@@ -40,7 +41,7 @@ class _MainState extends State<Main> {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.data) {
                 print("session*");
-                return ChoicePage();
+                return ProfileSummary();
               } else {
                 return ChoicePage();
               }

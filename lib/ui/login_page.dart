@@ -1,6 +1,8 @@
 import 'package:analyze_followers/blocs/insta_login/insta_bloc.dart';
 import 'package:analyze_followers/blocs/twitter_login/twitter_bloc.dart';
 import 'package:analyze_followers/secrets.dart';
+import 'package:analyze_followers/ui/twitter_profile_summary.dart';
+import 'package:analyze_followers/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_twitter_login/flutter_twitter_login.dart';
@@ -27,10 +29,12 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    String choice = widget.choice;
+    Utils().choice = widget.choice;
 
     final logo = Image.asset(
-        choice == "Twitter" ? 'assets/twitter.png' : 'assets/instagram.png',
+        Utils().choice == "Twitter"
+            ? 'assets/twitter.png'
+            : 'assets/instagram.png',
         width: 200.0,
         height: 200.0);
 
@@ -53,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         new Center(
           child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
-            choice == "Twitter"
+            Utils().choice == "Twitter"
                 ? Theme.of(context).primaryColor
                 : Theme.of(context).accentColor,
           )),
@@ -88,33 +92,45 @@ class _LoginPageState extends State<LoginPage> {
           }
         });
 
-    final twitterBlocBuilder = BlocBuilder(
-        bloc: twitterLoginBloc,
-        builder: (BuildContext context, TwitterLoginState state) {
-          if (state is TwitterLoginInitial) {
-            twitterLoginBloc.dispatch(TwitterLoginEvent(twitterLogin));
-            return loginScreen;
-          } else if (state is TwitterLoginLoading) {
-            return opaqueScreen;
-          } else if (state is TwitterLoginFailure) {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: Text('Could not connect to Twitter!'),
-              duration: Duration(seconds: 5),
-              action: SnackBarAction(
-                textColor: Theme.of(context).primaryColor,
-                label: 'Retry',
-                onPressed: () {
-                  twitterLoginBloc.dispatch(TwitterReturnInitialState());
-                },
-              ),
-            ));
-            return loginScreen;
-          } else {
-            // successful
-            return loginScreen;
-          }
-        });
+    final twitterBlocBuilder = BlocListener(
+      bloc: twitterLoginBloc,
+      child: BlocBuilder(
+          bloc: twitterLoginBloc,
+          builder: (BuildContext context, TwitterLoginState state) {
+            if (state is TwitterLoginInitial) {
+              twitterLoginBloc.dispatch(TwitterLoginEvent(twitterLogin));
+              return loginScreen;
+            } else if (state is TwitterLoginLoading) {
+              return opaqueScreen;
+            } else if (state is TwitterLoginFailure) {
+              _scaffoldKey.currentState.showSnackBar(SnackBar(
+                content: Text('Could not connect to Twitter!'),
+                duration: Duration(seconds: 5),
+                action: SnackBarAction(
+                  textColor: Theme.of(context).primaryColor,
+                  label: 'Retry',
+                  onPressed: () {
+                    twitterLoginBloc.dispatch(TwitterReturnInitialState());
+                  },
+                ),
+              ));
+              return loginScreen;
+            } else {
+              // successful
+              return opaqueScreen;
+            }
+          }),
+      listener: (BuildContext context, TwitterLoginState state) {
+        if (state is TwitterLoginSuccessful) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => ProfileSummary()),
+              ModalRoute.withName('/Profile'));
+        }
+      },
+    );
 
-    return choice == "Twitter" ? twitterBlocBuilder : instaBlocBuilder;
+    return Utils().choice == "Twitter" ? twitterBlocBuilder : instaBlocBuilder;
   }
 }
